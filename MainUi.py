@@ -47,19 +47,24 @@ class Ui_MainWindow(object):
         self.Json_TextBox.setReadOnly(True)
         self.Json_TextBox.setOverwriteMode(False)
         self.Json_TextBox.setObjectName("Json_TextBox")
-        self.Check_Button = QtWidgets.QPushButton(self.centralwidget)
+        self.Check_Button = QtWidgets.QPushButton(
+            self.centralwidget, clicked=lambda: self.Check_XML())
         self.Check_Button.setGeometry(QtCore.QRect(110, 120, 91, 30))
         self.Check_Button.setObjectName("Check_Button")
-        self.Solve_Button = QtWidgets.QPushButton(self.centralwidget)
+        self.Solve_Button = QtWidgets.QPushButton(
+            self.centralwidget, clicked=lambda: self.Solve_XML())
         self.Solve_Button.setGeometry(QtCore.QRect(210, 120, 91, 30))
         self.Solve_Button.setObjectName("Solve_Button")
-        self.Minify_Button = QtWidgets.QPushButton(self.centralwidget)
+        self.Minify_Button = QtWidgets.QPushButton(
+            self.centralwidget, clicked=lambda: self.Minify_XML())
         self.Minify_Button.setGeometry(QtCore.QRect(310, 120, 80, 30))
         self.Minify_Button.setObjectName("Minify_Button")
-        self.Convert_Button = QtWidgets.QPushButton(self.centralwidget)
+        self.Convert_Button = QtWidgets.QPushButton(
+            self.centralwidget, clicked=lambda: self.toJSON())
         self.Convert_Button.setGeometry(QtCore.QRect(410, 120, 111, 30))
         self.Convert_Button.setObjectName("Convert_Button")
-        self.Compress_Button = QtWidgets.QPushButton(self.centralwidget)
+        self.Compress_Button = QtWidgets.QPushButton(
+            self.centralwidget, clicked=lambda: self.Compress_XML())
         self.Compress_Button.setGeometry(QtCore.QRect(530, 120, 101, 30))
         self.Compress_Button.setObjectName("Compress_Button")
         self.SaveAs_Button = QtWidgets.QPushButton(
@@ -90,7 +95,7 @@ class Ui_MainWindow(object):
         self.statusBar = QtWidgets.QStatusBar(MainWindow)
         self.statusBar.setObjectName("statusBar")
         self.statusBar.showMessage("Welcome to XML Editor")
-        
+
         MainWindow.setStatusBar(self.statusBar)
         self.actionOpen = QtWidgets.QAction(MainWindow)
         self.actionOpen.setObjectName("actionOpen")
@@ -100,12 +105,12 @@ class Ui_MainWindow(object):
         self.actionSave_As.triggered.connect(lambda: self.SaveFile())
         self.actionClose = QtWidgets.QAction(MainWindow)
         self.actionClose.setObjectName("actionClose")
+        self.actionClose.triggered.connect(lambda: sys.exit())
         self.actionLight = QtWidgets.QAction(MainWindow)
         self.actionLight.setCheckable(False)
         self.actionLight.setChecked(False)
         self.actionLight.setObjectName("actionLight")
         self.actionLight.triggered.connect(lambda: Change_Theme("light"))
-        
         self.actionDark = QtWidgets.QAction(MainWindow)
         self.actionDark.setCheckable(False)
         self.actionDark.setChecked(False)
@@ -124,6 +129,26 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def Check_XML(self):
+        # Check XML Correctness
+        pass
+
+    def Solve_XML(self):
+        # Solving XML Errors
+        pass
+
+    def Minify_XML(self):
+        # Remove XML spaces and lines
+        pass
+
+    def toJSON(self):
+        # Convert correct XML into JSON
+        pass
+
+    def Compress_XML(self):
+        # Compress XML Data
+        pass
+
     def OpenFile(self):
         # Load Data
         options = QtWidgets.QFileDialog.Options()
@@ -133,7 +158,6 @@ class Ui_MainWindow(object):
             print(fileName)
             self.Read_and_Fill(fileName, self.XML_TextBox)
             self.statusBar.showMessage("File Opened")
-            
 
     def Read_and_Fill(self, fileName, textbox):
         # This function reads a file and stores it in TextBox
@@ -154,7 +178,6 @@ class Ui_MainWindow(object):
                 elif extension.startswith("JSON"):
                     f.write(self.current_json)
             self.statusBar.showMessage("Saved Successfully")
-            
 
     def Fill_From_String(self, data, textbox):
         # This function stores a string into TextBox
@@ -184,8 +207,9 @@ class Ui_MainWindow(object):
         self.actionLight.setText(_translate("MainWindow", "Light"))
         self.actionDark.setText(_translate("MainWindow", "Dark"))
 
+
 def Change_Theme(color):
-    
+
     # Change GUI Theme
     # get the QApplication instance,  or crash if not set
     app = QtWidgets.QApplication.instance()
@@ -196,12 +220,8 @@ def Change_Theme(color):
         app.setStyleSheet(theme.load_stylesheet(palette=theme.DarkPalette))
     elif color == "light":
         app.setStyleSheet(theme.load_stylesheet(palette=theme.LightPalette))
-    
-    
 
-    
-    
-    
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
