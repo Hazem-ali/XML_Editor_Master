@@ -3,9 +3,9 @@ def getRepeatedArray(x) -> list:
     rep = []
     lastItem = None
     array = []
-    
+    if(not x) : x
     for item in x:
-        if(item != lastItem and not lastItem is None):
+        if(not lastItem is None and item.tag != lastItem.tag):
             rep.append(array)
             array = []
             array.append(item)

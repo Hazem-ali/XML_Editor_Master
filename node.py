@@ -1,3 +1,5 @@
+from xml_private_functions import getRepeatedArray
+
 ####### Node Class Used in XML Class #######
 class Node:
     def __init__(self, tag=None, data=None, parent=None) -> None:
@@ -50,37 +52,58 @@ class Node:
 
         return xmlText
 
-    # Convert the Node Recursively to JSON text #
 
-    def toJson(self, jsonText='', taps='\t'):
+    # Convert the Node Recursively to JSON text #
+    def toJson(self, jsonText='', taps='\t',isArray=False,childIndex=0,lastChild=False):
         if(self.tag is None or self.visited):
             return ''
         self.visited = True  # Mark as visited to not print again
 
-        #### Opening ####
-        jsonText += taps+"\"" + self.tag + "\":"  # " adding ("") to all"
-        if(not self.data):
-            jsonText += '{'  # add tap { for parents only
-        # add data or another opening tag #
-        if(self.data):
-            jsonText += "\"" + self.data + "\""
+        if(not isArray):
+            #### Normal Opening ####
+            jsonText += taps+"\"" + self.tag + "\":"  # " adding ("") to all"
+            if(not self.data):
+                jsonText += '{'  # add tap { for parents only
+            # add data or another opening tag #
+            if(self.data):
+                jsonText += "\"" + self.data + "\","
+            else:
+                taps += '\t'
+                jsonText += '\n'
+
         else:
+            #### Array Opening ####
+            if(childIndex==0): jsonText += taps+"\"" + self.tag + "\":[\n"+taps+" {"  # " adding ("") to all"
+            else: jsonText+='\n'+taps+' {'  # " adding ("") to all"
+
             taps += '\t'
             jsonText += '\n'
-
+            
+                
         #### Children ####
         # Sort Every Children Array
         self.children = sorted(self.children,key=lambda child:child.tag )
-
+        self.children = getRepeatedArray(self.children)
         # Add the children recurrsively #
         for node in self.children:
-            jsonText += node.toJson(taps=taps)
-            jsonText += '\n'  # new line after each child
+            if(len(node) == 1):
+                jsonText += node[0].toJson(taps=taps)
+                jsonText += '\n'  # new line after each child
+            else:
+                for index,nodeChild in enumerate(node):
+                    lastElement = len(node)-1
+
+                    jsonText += nodeChild.toJson(taps=taps,isArray=True,childIndex=index,lastChild=(lastElement==index))
 
         #### Closing ####
         taps = taps[:-1]  # decrease number of taps after finish this children
         if(not self.data):
             jsonText += taps  # put taps before closing tag
-            jsonText += "}"  # put the closing tag
+            if(not isArray) : jsonText += "}"  # put the closing tag
+            else : jsonText += " },"  # put the closing tag
 
+        if(isArray and lastChild):
+            #jsonText += taps  # put taps before closing tag
+            jsonText = jsonText[:-1]
+            jsonText += "\n"+taps+"],\n"  # put the closing tag
         return jsonText

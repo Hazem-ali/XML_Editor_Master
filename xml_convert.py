@@ -1,4 +1,3 @@
-from xml_private_functions import getRepeatedArray
 from node import Node
 
 ####### XML Class implemented by Nodes #######
@@ -74,11 +73,35 @@ input = [
     '011',
     '</id>',
     '</prod>',
+    '<prod>',
+    '<name>',
+    '<first>',
+    'Hossam',
+    '</first>',
+    '<second id="ss">',
+    'Momooo',
+    '</second>',
+    '<a>',
+    'www.facebook.com',
+    '</a>',
+    '</name>',
+    '<id>',
+    '112',
+    '</id>',
+    '</prod>',
+    '<naa>',
+    'hhh',
+    '</naa>',
+    '<xnxx>',
+    '<ko>',
+    'no',
+    '</ko>',
+    '</xnxx>',
     "</xml>"
 ]
 
 rr.insert(input)
-print(rr.toXml())
+print(rr.toJson())
 
 
 # rr.insert([
