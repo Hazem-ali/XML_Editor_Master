@@ -47,6 +47,36 @@ class Node:
 
         return xmlText
 
+
+    # Convert the Node Recursively to JSON text #
+    def toJson(self,jsonText='',taps='\t'):
+        if(self.tag is None or self.visited):
+            return ''
+        self.visited = True  # Mark as visited to not print again
+
+        jsonText += taps+"\"" +self.tag+ "\":{"  # add tap and opening tag
+
+        # add data of another opening tag #
+        if(self.data):
+            jsonText += "\"" + self.data + "\""
+        else:
+            taps += '\t'
+            jsonText+='\n'
+
+        # Add the children recurrsively #
+        for node in self.children:
+            jsonText += node.toJson(taps=taps)
+            jsonText += '\n'  # new line after each child
+
+        taps = taps[:-1]  # decrease number of taps after finish this children
+
+        if(not self.data):
+            jsonText += taps  # put taps before closing tag
+        jsonText +="}"  # put the closing tag
+
+        return jsonText
+
+
 ####### XML Class implemented by Nodes #######
 class Xml:
     def __init__(self) -> None:
@@ -82,9 +112,14 @@ class Xml:
 
     # Convert Xml Tree to simplify XML Text #
     def toXml(self):
-        xmlText = ''
-        taps = ''
-        return self.root.toXml(xmlText, taps)
+        return self.root.toXml()
+
+     # Convert Xml Tree to simplify JSON #
+    def toJson(self):
+        json = '{\n'+self.root.toJson()+'\t\n}'
+        json = json.replace('<','')
+        json = json.replace('>','')
+        return json
 
 
 ########## TESTING ###########
@@ -96,7 +131,7 @@ input = [
     '<first>',
     'Hossam',
     '</first>',
-    '<second>',
+    '<second id="ss">',
     'Momooo',
     '</second>',
     '</name>',
@@ -116,7 +151,8 @@ input = [
 ]
 
 rr.insert(input)
-print(rr.toXml())
+print(rr.toJson())
+
 
 # rr.insert([
 #     '<name>',
@@ -130,3 +166,4 @@ print(rr.toXml())
 
 # ])
 # rr.show()
+
