@@ -2,11 +2,12 @@ from xml_private_functions import getRepeatedArray
 
 ####### Node Class Used in XML Class #######
 class Node:
-    def __init__(self, tag=None, data=None, parent=None) -> None:
+    def __init__(self, tag=None, data=None, parent=None, closingTag=None) -> None:
         self.tag = tag
-        self.closingTag = None
+        self.closingTag = closingTag
         self.data = data
         self.children = []
+        self.attrChildren= []
         self.parent = parent
         self.visited = False
 
@@ -48,6 +49,7 @@ class Node:
         taps = taps[:-1]  # decrease number of taps after finish this children
         if(not self.data):
             xmlText += taps  # put taps before closing tag
+
         xmlText += self.closingTag  # put the closing tag
 
         return xmlText
@@ -59,9 +61,11 @@ class Node:
             return ''
         self.visited = True  # Mark as visited to not print again
 
+       
+        correctedTag = self.tag.split(' ',1)[0]
         if(not isArray):
             #### Normal Opening ####
-            jsonText += taps+"\"" + self.tag + "\":"  # " adding ("") to all"
+            jsonText += taps+"\"" + correctedTag + "\":"  # " adding ("") to all"
             if(not self.data):
                 jsonText += '{'  # add tap { for parents only
             # add data or another opening tag #
@@ -73,13 +77,16 @@ class Node:
 
         else:
             #### Array Opening ####
-            if(childIndex==0): jsonText += taps+"\"" + self.tag + "\":[\n"+taps+" {"  # " adding ("") to all"
-            else: jsonText+='\n'+taps+' {'  # " adding ("") to all"
+            if(not self.data):
+                if(childIndex==0): jsonText += taps+"\"" + correctedTag + "\":[\n"+taps+" {"  # " adding ("") to all"
+                else: jsonText+='\n'+taps+' {'  # " adding ("") to all"
 
-            taps += '\t'
-            jsonText += '\n'
-            
-                
+                taps += '\t'
+                jsonText += '\n'
+            else:
+                jsonText+='\n'+taps+' '+self.data+','
+                taps += '\t'
+                 
         #### Children ####
         # Sort Every Children Array
         self.children = sorted(self.children,key=lambda child:child.tag )
@@ -107,3 +114,10 @@ class Node:
             jsonText = jsonText[:-1]
             jsonText += "\n"+taps+"],\n"  # put the closing tag
         return jsonText
+
+
+    # To Clear visited item after every method #
+    def clearVisited(self):
+        self.visited = False
+        for item in self.children:
+            item.clearVisited()

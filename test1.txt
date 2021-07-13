@@ -1,0 +1,7 @@
+<products>
+<prod id="ss" ref="dd"><name>hpss</name></prod>
+<prod id="ss" ref="dd">hossam</prod>
+<prod id="ss" ref="dd">sherif</prod>
+<name>hos</name>
+<age id="ss" />
+</products>
