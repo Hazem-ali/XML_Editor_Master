@@ -1,3 +1,4 @@
+from xml_private_functions import Bring_Data, stringToTokens
 from node import Node
 
 ####### XML Class implemented by Nodes #######
@@ -47,61 +48,12 @@ class Xml:
 
 ########## TESTING ###########
 rr = Xml()
-input = [
-    "<xml id='xx1'>",
-    '<prod>',
-    '<name>',
-    '<first>',
-    'Hossam',
-    '</first>',
-    '<second id="ss">',
-    'Momooo',
-    '</second>',
-    '<a>',
-    'www.facebook.com',
-    '</a>',
-    '</name>',
-    '<id>',
-    '112',
-    '</id>',
-    '</prod>',
-    '<prod>',
-    '<name>',
-    'Hassan',
-    '</name>',
-    '<id>',
-    '011',
-    '</id>',
-    '</prod>',
-    '<prod>',
-    '<name>',
-    '<first>',
-    'Hossam',
-    '</first>',
-    '<second id="ss">',
-    'Momooo',
-    '</second>',
-    '<a>',
-    'www.facebook.com',
-    '</a>',
-    '</name>',
-    '<id>',
-    '112',
-    '</id>',
-    '</prod>',
-    '<naa>',
-    'hhh',
-    '</naa>',
-    '<xnxx>',
-    '<ko>',
-    'no',
-    '</ko>',
-    '</xnxx>',
-    "</xml>"
-]
+string = Bring_Data('test.txt')
+input = stringToTokens(string)
 
 rr.insert(input)
-print(rr.toJson())
+print(rr.toXml())
+
 
 
 # rr.insert([
