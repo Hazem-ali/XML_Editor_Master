@@ -127,7 +127,7 @@
    <widget class="QPushButton" name="Convert_Button">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>533</x>
       <y>120</y>
       <width>111</width>
       <height>30</height>
@@ -135,19 +135,6 @@
     </property>
     <property name="text">
      <string>Convert to JSON</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="Compress_Button">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>120</y>
-      <width>80</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Compress</string>
     </property>
    </widget>
    <widget class="QPushButton" name="SaveAs_Button">
@@ -231,7 +218,15 @@
     <addaction name="actionLight"/>
     <addaction name="actionDark"/>
    </widget>
+   <widget class="QMenu" name="menuCompression">
+    <property name="title">
+     <string>Compression Options</string>
+    </property>
+    <addaction name="actionCompress_Current_XML"/>
+    <addaction name="actionDecompress_a_File"/>
+   </widget>
    <addaction name="menuOpen"/>
+   <addaction name="menuCompression"/>
    <addaction name="menuTheme"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -270,6 +265,16 @@
    </property>
    <property name="text">
     <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionCompress_Current_XML">
+   <property name="text">
+    <string>Compress Current XML...</string>
+   </property>
+  </action>
+  <action name="actionDecompress_a_File">
+   <property name="text">
+    <string>Decompress a File...</string>
    </property>
   </action>
  </widget>

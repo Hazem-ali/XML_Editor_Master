@@ -202,5 +202,5 @@ def checkErrors(string):
     return errors
 
 
-ss = Bring_Data('ss.txt')
-print(checkErrors(ss))
+# ss = Bring_Data('ss.txt')
+# print(checkErrors(ss))

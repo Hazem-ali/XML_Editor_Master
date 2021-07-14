@@ -72,12 +72,12 @@ class Ui_MainWindow(object):
         self.Minify_Button.setObjectName("Minify_Button")
         self.Convert_Button = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.toJSON())
-        self.Convert_Button.setGeometry(QtCore.QRect(490, 120, 111, 30))
+        self.Convert_Button.setGeometry(QtCore.QRect(533, 120, 111, 30))
         self.Convert_Button.setObjectName("Convert_Button")
-        self.Compress_Button = QtWidgets.QPushButton(
-            self.centralwidget, clicked=lambda: self.Compress_XML())
-        self.Compress_Button.setGeometry(QtCore.QRect(610, 120, 80, 30))
-        self.Compress_Button.setObjectName("Compress_Button")
+        # self.Compress_Button = QtWidgets.QPushButton(
+        #     self.centralwidget, clicked=lambda: self.Compress_XML())
+        # self.Compress_Button.setGeometry(QtCore.QRect(610, 120, 80, 30))
+        # self.Compress_Button.setObjectName("Compress_Button")
         self.SaveAs_Button = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.SaveFile())
         self.SaveAs_Button.setGeometry(QtCore.QRect(700, 120, 80, 30))
@@ -106,6 +106,8 @@ class Ui_MainWindow(object):
         self.menuOpen.setObjectName("menuOpen")
         self.menuTheme = QtWidgets.QMenu(self.menubar)
         self.menuTheme.setObjectName("menuTheme")
+        self.menuCompression = QtWidgets.QMenu(self.menubar)
+        self.menuCompression.setObjectName("menuCompression")
         MainWindow.setMenuBar(self.menubar)
         self.statusBar = QtWidgets.QStatusBar(MainWindow)
         self.statusBar.setObjectName("statusBar")
@@ -131,6 +133,12 @@ class Ui_MainWindow(object):
         self.actionDark.setChecked(False)
         self.actionDark.setObjectName("actionDark")
         self.actionDark.triggered.connect(lambda: self.GUI_Color("dark"))
+        self.actionCompress_Current_XML = QtWidgets.QAction(MainWindow)
+        self.actionCompress_Current_XML.setObjectName("actionCompress_Current_XML")
+        self.actionCompress_Current_XML.triggered.connect(lambda: self.Compress_XML())
+        self.actionDecompress_a_File = QtWidgets.QAction(MainWindow)
+        self.actionDecompress_a_File.setObjectName("actionDecompress_a_File")
+        self.actionDecompress_a_File.triggered.connect(lambda: self.Decompress_XML())
         self.menuOpen.addAction(self.actionOpen)
         self.menuOpen.addSeparator()
         self.menuOpen.addAction(self.actionSave_As)
@@ -138,7 +146,10 @@ class Ui_MainWindow(object):
         self.menuOpen.addAction(self.actionClose)
         self.menuTheme.addAction(self.actionLight)
         self.menuTheme.addAction(self.actionDark)
+        self.menuCompression.addAction(self.actionCompress_Current_XML)
+        self.menuCompression.addAction(self.actionDecompress_a_File)
         self.menubar.addAction(self.menuOpen.menuAction())
+        self.menubar.addAction(self.menuCompression.menuAction())
         self.menubar.addAction(self.menuTheme.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -160,11 +171,15 @@ class Ui_MainWindow(object):
     def Check_XML(self):
         # Check XML Correctness
         
+        indices = []
+        errors = xml_fn.checkErrors(self.retrieved_xml)
+        for item in errors:
+            indices.append(item["position"])
+        
         cur_format = QtGui.QTextCharFormat()
         color=QtGui.QColor("#147DBD")
         cur_format.setBackground(color)
-        
-        indices = [(200,400),(700,1200),(2000,2500)]
+        # indices = [(200,400),(700,1200),(2000,2500)]
         for start, end in indices:
             
             cursor = self.XML_TextBox.textCursor()
@@ -248,7 +263,7 @@ class Ui_MainWindow(object):
         import compress
         # Ask for compressed location
         name, _ = QtWidgets.QFileDialog.getSaveFileName(
-            MainWindow, 'Save Compressed File', filter="Compressed File (*.lzw)")
+            MainWindow, 'Save Compressed File As', filter="Compressed File (*.lzw)")
         # If a name is written
         if name:
             compress.LZW_Compress(self.retrieved_xml, name)
@@ -256,6 +271,25 @@ class Ui_MainWindow(object):
             
         return
 
+    def Decompress_XML(self):
+        # Decompress file and put it into XML Text Box
+        
+        # Load Compressed File
+        options = QtWidgets.QFileDialog.Options()
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
+            MainWindow, "Open Compressed file", "", "LZW Files (*.lzw)", options=options)
+        if fileName:
+           import compress
+           self.retrieved_xml, output_name = compress.LZW_Decompress(fileName)
+           self.Fill_From_String(self.retrieved_xml, self.XML_TextBox) 
+           output_name = output_name.split('/')[-1]
+           self.StatusBar_Message("green", "Done, Showing Decompressed file, and Saved As " + output_name)
+        
+        
+        return
+
+    
+    
     def OpenFile(self):
         # Load Data
         options = QtWidgets.QFileDialog.Options()
@@ -352,12 +386,6 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "XML Data..."))
         self.Open_Button.setText(_translate("MainWindow", "Open"))
 
-#         self.Json_TextBox.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-# "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-# "p, li { white-space: pre-wrap; }\n"
-# "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-# "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">LOL <span style=\" color:#ff0000;\">MMM</span> AAAA</p></body></html>"))
-
         self.Json_TextBox.setPlaceholderText(
             _translate("MainWindow", "JSON Data..."))
         self.Check_Button.setText(_translate("MainWindow", "Check Errors"))
@@ -365,17 +393,21 @@ class Ui_MainWindow(object):
         self.Minify_Button.setText(_translate("MainWindow", "Minify"))
         self.Convert_Button.setText(
             _translate("MainWindow", "To JSON"))
-        self.Compress_Button.setText(_translate("MainWindow", "Compress"))
+        # self.Compress_Button.setText(_translate("MainWindow", "Compress"))
         self.SaveAs_Button.setText(_translate("MainWindow", "Save As"))
         self.Title.setText(_translate("MainWindow", "XML Editor"))
         self.Prettify_Button.setText(_translate("MainWindow", "Prettify"))
         self.menuOpen.setTitle(_translate("MainWindow", "File"))
         self.menuTheme.setTitle(_translate("MainWindow", "Theme"))
+        self.menuCompression.setTitle(_translate("MainWindow", "Compression Options"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionSave_As.setText(_translate("MainWindow", "Save As"))
         self.actionClose.setText(_translate("MainWindow", "Close"))
         self.actionLight.setText(_translate("MainWindow", "Light"))
         self.actionDark.setText(_translate("MainWindow", "Dark"))
+        self.actionCompress_Current_XML.setText(_translate("MainWindow", "Compress Current XML..."))
+        self.actionDecompress_a_File.setText(_translate("MainWindow", "Decompress a File..."))
+
 
 
 def Change_Theme(color):

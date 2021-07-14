@@ -33,3 +33,52 @@ def LZW_Compress(data, filename):
         output_file.write(pack('>H',int(data)))
         
     output_file.close()
+    
+    
+    
+def LZW_Decompress(input_file):
+
+
+    file = open(input_file, "rb")
+    compressed_data = []
+    next_code = 256
+    decompressed_data = ""
+    string = ""
+
+    # Reading the compressed file.
+    while True:
+        rec = file.read(2)
+        if len(rec) != 2:
+            break
+        (data, ) = unpack('>H', rec)
+        compressed_data.append(data)
+
+    # Building and initializing the dictionary.
+    dictionary_size = 256
+    dictionary = dict([(x, chr(x)) for x in range(dictionary_size)])
+
+    # iterating through the codes.
+    # LZW Decompression algorithm
+    for code in compressed_data:
+        if not (code in dictionary):
+            dictionary[code] = string + (string[0])
+        decompressed_data += dictionary[code]
+        if not(len(string) == 0):
+            dictionary[next_code] = string + (dictionary[code][0])
+            next_code += 1
+        string = dictionary[code]
+
+    # storing the decompressed string into a file.
+    out = input_file.split(".")[0]
+    output_name = out + "_decompressed.xml"
+    output_file = open(output_name, "w")
+    # for data in decompressed_data:
+    #     output_file.write(data)
+    output_file.write(decompressed_data)
+    
+    output_file.close()
+    file.close()
+    return decompressed_data, output_name
+    
+# print(LZW_Decompress("compressedfile.lzw"))
+#362
