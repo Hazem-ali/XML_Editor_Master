@@ -89,7 +89,7 @@ class Xml:
 
 
 ########## TESTING ###########
-input = Bring_Data('test2.txt')
+input = Bring_Data('data-sample.xml')
 
 rr = Xml()
 rr.insert(input)

@@ -1,3 +1,4 @@
+import re
 
 ########## FUNCTIONS ###########
 def getRepeatedArray(x) -> list:
@@ -31,9 +32,19 @@ def Bring_Data(filename):
 
 
 def stringToTokens(string) -> list:
-    xmlStr = string
+    xmlStr = str(string)
+    
     xmlStr = xmlStr.split()
     xmlStr = ' '.join(xmlStr)
+    # remove ?>
+    while(1):
+        hh = re.search("<\?.*\?>|<!--.*-->",xmlStr)
+        if(hh): 
+            hh=hh.group(0)
+            xmlStr = xmlStr.replace(hh,'')
+        else:
+            break
+
     xmlStr = xmlStr.replace('<', '?hossam?<')
     xmlStr = xmlStr.replace('>', '>?hossam?')
     xmlStr = xmlStr.split('?hossam?')
