@@ -10,9 +10,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QFile, QTextStream
 
+
 # must execute "pip install qdarkstyle" to enable new themes
 import qdarkstyle as theme
 import random
+import xml_private_functions as xml_fn
+import xml_convert
 
 
 class Ui_MainWindow(object):
@@ -34,24 +37,26 @@ class Ui_MainWindow(object):
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.XML_TextBox = QtWidgets.QTextEdit(self.centralwidget)
+        self.XML_TextBox = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.XML_TextBox.setGeometry(QtCore.QRect(20, 160, 371, 351))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.XML_TextBox.setFont(font)
         self.XML_TextBox.setReadOnly(True)
         self.XML_TextBox.setObjectName("XML_TextBox")
+        self.XML_TextBox.setTabStopDistance(10)
         self.Open_Button = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.OpenFile())
         self.Open_Button.setGeometry(QtCore.QRect(20, 120, 80, 30))
         self.Open_Button.setObjectName("Open_Button")
-        self.Json_TextBox = QtWidgets.QTextEdit(self.centralwidget)
+        self.Json_TextBox = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.Json_TextBox.setGeometry(QtCore.QRect(410, 160, 371, 351))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Json_TextBox.setFont(font)
         self.Json_TextBox.setReadOnly(True)
         self.Json_TextBox.setObjectName("Json_TextBox")
+        self.Json_TextBox.setTabStopDistance(10)
         self.Check_Button = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.Check_XML())
         self.Check_Button.setGeometry(QtCore.QRect(110, 120, 91, 30))
@@ -140,12 +145,22 @@ class Ui_MainWindow(object):
 
     def Check_XML(self):
         # Check XML Correctness
-        start1 = random.randint(0, 50)
-        end1 = random.randint(60, 100)
-        start2 = random.randint(400, 500)
-        end2 = random.randint(700, 800)
-        self.XML_TextBox.setHtml(
-            self.Add_Formalized_Text(self.retrieved_xml, [(start1, end1), (start2, end2)]))
+        
+        cur_format = QtGui.QTextCharFormat()
+        color=QtGui.QColor("#147DBD")
+        cur_format.setBackground(color)
+        
+        indices = [(200,400),(700,1200),(2000,2500)]
+        for start, end in indices:
+            
+            cursor = self.XML_TextBox.textCursor()
+            cursor.setPosition(start)
+            cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
+            cursor.setCharFormat(cur_format)
+            self.XML_TextBox.setTextCursor(cursor)
+            
+        self.statusBar.showMessage(str(len(indices)) + " Errors Found")
+        
         return
 
     def Solve_XML(self):
@@ -154,30 +169,67 @@ class Ui_MainWindow(object):
 
     def Minify_XML(self):
         # Remove XML spaces and lines
+        
+        # Check That we've xml file
+        if not self.retrieved_xml:
+            self.statusBar.showMessage("Please add an XML file first")
+            return
+        
+        
+        self.retrieved_xml = xml_fn.minify(self.retrieved_xml)
+        self.XML_TextBox.setPlainText(self.retrieved_xml)
+        self.statusBar.showMessage("XML Minified Successfully")
+        
         return
 
     def Prettify_XML(self):
         # Prettify XML by adding spaces and lines
+        
+        
+        # Check That we've xml file
+        if not self.retrieved_xml:
+            self.statusBar.showMessage("Please add an XML file first")
+            return
+        
+        xml_data = xml_convert.Xml()
+        xml_data.insert(self.retrieved_xml)
+        self.retrieved_xml = xml_data.toXml()
+        self.XML_TextBox.setPlainText(self.retrieved_xml)
+        self.statusBar.showMessage("XML Prettified Successfully")
+        
+        
         return
 
     def toJSON(self):
         # Convert correct XML into JSON
-        return
-
-    def Compress_XML(self):
-        # Check if XML was given before compression
+        
+        # Check That we've xml file
         if not self.retrieved_xml:
-            self.statusBar.showMessage("No XML file was given....!")
+            self.statusBar.showMessage("Please add an XML file first")
             return
         
+        xml_data = xml_convert.Xml()
+        xml_data.insert(self.retrieved_xml)
+        self.converted_json = xml_data.toJson()
+        self.Json_TextBox.setPlainText(self.converted_json)
+        self.statusBar.showMessage("Converted to JSON Successfully")
+        return
+   
+    def Compress_XML(self):
         # Compress XML Data
+        
+        # Check if XML was given before compression
+        if not self.retrieved_xml:
+            self.statusBar.showMessage("Please add an XML file first")
+            return
+        
+        # Perform Compression
         import compress
         # Ask for compressed location
         name, _ = QtWidgets.QFileDialog.getSaveFileName(
             MainWindow, 'Save Compressed File', filter="Compressed File (*.lzw)")
         # If a name is written
         if name:
-            print(name)
             compress.LZW_Compress(self.retrieved_xml, name)
             self.statusBar.showMessage("Compression Done Successfully")
         return
@@ -188,7 +240,7 @@ class Ui_MainWindow(object):
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
             MainWindow, "Open XML file", "", "XML Files (*.xml)", options=options)
         if fileName:
-            print(fileName)
+            print("Opened File:",fileName)
             self.filename = fileName
             self.Read_and_Fill(fileName, self.XML_TextBox)
             self.statusBar.showMessage("File Opened")
@@ -205,11 +257,11 @@ class Ui_MainWindow(object):
     def SaveFile(self):
         # Check if XML was given before saving
         if not self.retrieved_xml:
-            self.statusBar.showMessage("No XML file was given....!")
+            self.statusBar.showMessage("Please add an XML file first")
             return
-        elif not self.correct_xml:
-            self.statusBar.showMessage("No changes to save....!")
-            return
+        # elif not self.correct_xml:
+        #     self.statusBar.showMessage("No changes to save....!")
+        #     return
             
         
         # Save Data
@@ -255,7 +307,7 @@ class Ui_MainWindow(object):
 
         text += data[i:]  # Adding rest of data
         # Put it in HTML format in order to color it
-        final_result = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n""<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n""p, li { white-space: pre-wrap; }\n""</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n""""<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"""+str(text)+"""</p></body></html>"""
+        final_result = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n""<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n""p, li { white-space: pre-wrap; }\n""</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n""""<xmp><textarea style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"""+str(text)+"""</textarea></xmp></body></html>"""
         return final_result
 
     def retranslateUi(self, MainWindow):
