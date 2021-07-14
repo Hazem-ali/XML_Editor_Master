@@ -43,7 +43,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.XML_TextBox.setFont(font)
-        self.XML_TextBox.setReadOnly(True)
+        # self.XML_TextBox.setReadOnly(True)
         self.XML_TextBox.setObjectName("XML_TextBox")
         self.XML_TextBox.setTabStopDistance(10)
         self.Open_Button = QtWidgets.QPushButton(
@@ -159,7 +159,7 @@ class Ui_MainWindow(object):
         self.color = color
         Change_Theme(color)
         return
-    
+
     def Clear_Highlights(self):
         temp = QtWidgets.QPlainTextEdit()
         cursor = temp.textCursor()
@@ -167,99 +167,100 @@ class Ui_MainWindow(object):
         self.XML_TextBox.setTextCursor(cursor)
         del temp
         return
-        
+
     def Check_XML(self):
         # Check XML Correctness
-        
+
         indices = []
-        errors = xml_fn.checkErrors(self.retrieved_xml)
+        # errors = xml_fn.checkErrors(self.retrieved_xml)
+        errors = xml_fn.checkErrors(self.XML_TextBox.toPlainText())
         for item in errors:
             indices.append(item["position"])
-        
+
         cur_format = QtGui.QTextCharFormat()
         color=QtGui.QColor("#147DBD")
         cur_format.setBackground(color)
         print("Indices", indices)
         # indices = [(200,400),(700,1200),(2000,2500)]
         for start, end in indices:
-            
+
             cursor = self.XML_TextBox.textCursor()
             cursor.setPosition(start)
             cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
             cursor.setCharFormat(cur_format)
             self.XML_TextBox.setTextCursor(cursor)
-        
-        
+
+
         self.StatusBar_Message("red",str(len(indices)) + " Errors Found")
-        
+
         return
 
     def Solve_XML(self):
         # Solving XML Errors
-        
+
         self.Clear_Highlights()
-        
+
         return
 
     def Minify_XML(self):
         # Remove XML spaces and lines
-        
+
         # Check That we've xml file
         if not self.retrieved_xml:
             self.StatusBar_Message("red","Please add an XML file first")
             return
-        
+
         self.Clear_Highlights()
-        
+
         self.retrieved_xml = xml_fn.minify(self.retrieved_xml)
         self.XML_TextBox.setPlainText(self.retrieved_xml)
-        self.StatusBar_Message("green","XML Minified Successfully")        
+        self.StatusBar_Message("green","XML Minified Successfully")
         return
 
     def Prettify_XML(self):
         # Prettify XML by adding spaces and lines
-        
+
         self.Clear_Highlights()
-        
+
         # Check That we've xml file
         if not self.retrieved_xml:
             self.StatusBar_Message("red","Please add an XML file first")
 
             return
-        
+
         xml_data = xml_convert.Xml()
         xml_data.insert(self.retrieved_xml)
         self.retrieved_xml = xml_data.toXml()
         self.XML_TextBox.setPlainText(self.retrieved_xml)
-        self.StatusBar_Message("green","XML Prettified Successfully")        
-        
-        
+        self.StatusBar_Message("green","XML Prettified Successfully")
+
+
         return
 
     def toJSON(self):
         # Convert correct XML into JSON
-        
+
         # Check That we've xml file
         if not self.retrieved_xml:
             self.StatusBar_Message("red","Please add an XML file first")
             return
-        
+
         xml_data = xml_convert.Xml()
         xml_data.insert(self.retrieved_xml)
         self.converted_json = xml_data.toJson()
         self.Json_TextBox.setPlainText(self.converted_json)
         self.StatusBar_Message("green", "Converted to JSON Successfully")
-        
+
         return
-   
+
     def Compress_XML(self):
         # Compress XML Data
-        
+
         # Check if XML was given before compression
         if not self.retrieved_xml:
             self.StatusBar_Message("red", "Please add an XML file first")
             return
-        
+
         # Perform Compression
         import compress
         # Ask for compressed location
@@ -269,12 +270,12 @@ class Ui_MainWindow(object):
         if name:
             compress.LZW_Compress(self.retrieved_xml, name)
             self.StatusBar_Message("green", "Compression Done Successfully")
-            
+
         return
 
     def Decompress_XML(self):
         # Decompress file and put it into XML Text Box
-        
+
         # Load Compressed File
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -282,15 +283,15 @@ class Ui_MainWindow(object):
         if fileName:
            import compress
            self.retrieved_xml, output_name = compress.LZW_Decompress(fileName)
-           self.Fill_From_String(self.retrieved_xml, self.XML_TextBox) 
+           self.Fill_From_String(self.retrieved_xml, self.XML_TextBox)
            output_name = output_name.split('/')[-1]
            self.StatusBar_Message("green", "Done, Showing Decompressed file, and Saved As " + output_name)
-        
-        
+
+
         return
 
-    
-    
+
+
     def OpenFile(self):
         # Load Data
         options = QtWidgets.QFileDialog.Options()
@@ -315,13 +316,13 @@ class Ui_MainWindow(object):
         # Check if XML was given before saving
         if not self.retrieved_xml:
             self.StatusBar_Message("red", "Please add an XML file first")
-            
+
             return
         # elif not self.correct_xml:
         #     self.statusBar.showMessage("No changes to save....!")
         #     return
-            
-        
+
+
         # Save Data
         name, extension = QtWidgets.QFileDialog.getSaveFileName(
             MainWindow, 'Save File', filter="JSON (*.json);;XML (*.xml)")
@@ -334,9 +335,9 @@ class Ui_MainWindow(object):
                 elif extension.startswith("JSON"):
                     f.write(self.current_json)
             self.StatusBar_Message("green", "Saved Successfully")
-                    
+
         return
-    
+
     def StatusBar_Message(self, color, message):
         if self.color == 'light':
             self.statusBar.setStyleSheet("color : " + color)

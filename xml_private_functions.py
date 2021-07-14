@@ -101,7 +101,7 @@ def getTokensPlus(string):
     tokens = stringToTokens(string)
     tokensPlus = []
     for token in tokens:
-        index = str(string).replace(' ', '').find(str(token).replace(' ', ''))
+        index = str(string).find(str(token).replace(' ', ''))
         tokensPlus.append({"token": token, "beginIndex": index})
 
     return tokensPlus
@@ -287,5 +287,5 @@ def isInArray(array,item,type='error') -> bool:
 
 
 
-# ss = Bring_Data('ss.txt')
+# ss = Bring_Data('test1.txt')
 # print(checkErrors(ss))
