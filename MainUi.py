@@ -24,6 +24,7 @@ class Ui_MainWindow(object):
         self.retrieved_xml = ''
         self.correct_xml = ''
         self.converted_json = ''
+        self.color = 'light'
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -124,12 +125,12 @@ class Ui_MainWindow(object):
         self.actionLight.setCheckable(False)
         self.actionLight.setChecked(False)
         self.actionLight.setObjectName("actionLight")
-        self.actionLight.triggered.connect(lambda: Change_Theme("light"))
+        self.actionLight.triggered.connect(lambda: self.GUI_Color("light"))
         self.actionDark = QtWidgets.QAction(MainWindow)
         self.actionDark.setCheckable(False)
         self.actionDark.setChecked(False)
         self.actionDark.setObjectName("actionDark")
-        self.actionDark.triggered.connect(lambda: Change_Theme("dark"))
+        self.actionDark.triggered.connect(lambda: self.GUI_Color("dark"))
         self.menuOpen.addAction(self.actionOpen)
         self.menuOpen.addSeparator()
         self.menuOpen.addAction(self.actionSave_As)
@@ -143,6 +144,19 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def GUI_Color(self,color):
+        self.color = color
+        Change_Theme(color)
+        return
+    
+    def Clear_Highlights(self):
+        temp = QtWidgets.QPlainTextEdit()
+        cursor = temp.textCursor()
+        cursor.clearSelection()
+        self.XML_TextBox.setTextCursor(cursor)
+        del temp
+        return
+        
     def Check_XML(self):
         # Check XML Correctness
         
@@ -158,13 +172,17 @@ class Ui_MainWindow(object):
             cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
             cursor.setCharFormat(cur_format)
             self.XML_TextBox.setTextCursor(cursor)
-            
-        self.statusBar.showMessage(str(len(indices)) + " Errors Found")
+        
+        
+        self.StatusBar_Message("red",str(len(indices)) + " Errors Found")
         
         return
 
     def Solve_XML(self):
         # Solving XML Errors
+        
+        self.Clear_Highlights()
+        
         return
 
     def Minify_XML(self):
@@ -172,30 +190,32 @@ class Ui_MainWindow(object):
         
         # Check That we've xml file
         if not self.retrieved_xml:
-            self.statusBar.showMessage("Please add an XML file first")
+            self.StatusBar_Message("red","Please add an XML file first")
             return
         
+        self.Clear_Highlights()
         
         self.retrieved_xml = xml_fn.minify(self.retrieved_xml)
         self.XML_TextBox.setPlainText(self.retrieved_xml)
-        self.statusBar.showMessage("XML Minified Successfully")
-        
+        self.StatusBar_Message("green","XML Minified Successfully")        
         return
 
     def Prettify_XML(self):
         # Prettify XML by adding spaces and lines
         
+        self.Clear_Highlights()
         
         # Check That we've xml file
         if not self.retrieved_xml:
-            self.statusBar.showMessage("Please add an XML file first")
+            self.StatusBar_Message("red","Please add an XML file first")
+
             return
         
         xml_data = xml_convert.Xml()
         xml_data.insert(self.retrieved_xml)
         self.retrieved_xml = xml_data.toXml()
         self.XML_TextBox.setPlainText(self.retrieved_xml)
-        self.statusBar.showMessage("XML Prettified Successfully")
+        self.StatusBar_Message("green","XML Prettified Successfully")        
         
         
         return
@@ -205,14 +225,15 @@ class Ui_MainWindow(object):
         
         # Check That we've xml file
         if not self.retrieved_xml:
-            self.statusBar.showMessage("Please add an XML file first")
+            self.StatusBar_Message("red","Please add an XML file first")
             return
         
         xml_data = xml_convert.Xml()
         xml_data.insert(self.retrieved_xml)
         self.converted_json = xml_data.toJson()
         self.Json_TextBox.setPlainText(self.converted_json)
-        self.statusBar.showMessage("Converted to JSON Successfully")
+        self.StatusBar_Message("green", "Converted to JSON Successfully")
+        
         return
    
     def Compress_XML(self):
@@ -220,7 +241,7 @@ class Ui_MainWindow(object):
         
         # Check if XML was given before compression
         if not self.retrieved_xml:
-            self.statusBar.showMessage("Please add an XML file first")
+            self.StatusBar_Message("red", "Please add an XML file first")
             return
         
         # Perform Compression
@@ -231,7 +252,8 @@ class Ui_MainWindow(object):
         # If a name is written
         if name:
             compress.LZW_Compress(self.retrieved_xml, name)
-            self.statusBar.showMessage("Compression Done Successfully")
+            self.StatusBar_Message("green", "Compression Done Successfully")
+            
         return
 
     def OpenFile(self):
@@ -243,7 +265,7 @@ class Ui_MainWindow(object):
             print("Opened File:",fileName)
             self.filename = fileName
             self.Read_and_Fill(fileName, self.XML_TextBox)
-            self.statusBar.showMessage("File Opened")
+            self.StatusBar_Message("green", "File Opened")
         return
 
     def Read_and_Fill(self, fileName, textbox):
@@ -257,7 +279,8 @@ class Ui_MainWindow(object):
     def SaveFile(self):
         # Check if XML was given before saving
         if not self.retrieved_xml:
-            self.statusBar.showMessage("Please add an XML file first")
+            self.StatusBar_Message("red", "Please add an XML file first")
+            
             return
         # elif not self.correct_xml:
         #     self.statusBar.showMessage("No changes to save....!")
@@ -275,8 +298,16 @@ class Ui_MainWindow(object):
                     f.write(self.current_xml)
                 elif extension.startswith("JSON"):
                     f.write(self.current_json)
-            self.statusBar.showMessage("Saved Successfully")
+            self.StatusBar_Message("green", "Saved Successfully")
+                    
         return
+    
+    def StatusBar_Message(self, color, message):
+        if self.color == 'light':
+            self.statusBar.setStyleSheet("color : " + color)
+        else:
+            self.statusBar.setStyleSheet("color : white")
+        self.statusBar.showMessage(message)
 
     def Fill_From_String(self, data, textbox):
         # This function stores a string into TextBox
