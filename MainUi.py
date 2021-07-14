@@ -171,6 +171,8 @@ class Ui_MainWindow(object):
     def Check_XML(self):
         # Check XML Correctness
 
+        
+        
         indices = []
         # errors = xml_fn.checkErrors(self.retrieved_xml)
         errors = xml_fn.checkErrors(self.XML_TextBox.toPlainText())
@@ -178,7 +180,7 @@ class Ui_MainWindow(object):
             indices.append(item["position"])
 
         cur_format = QtGui.QTextCharFormat()
-        color=QtGui.QColor("#147DBD")
+        color=QtGui.QColor("#6495ED")
         cur_format.setBackground(color)
         print("Indices", indices)
         # indices = [(200,400),(700,1200),(2000,2500)]
@@ -191,7 +193,7 @@ class Ui_MainWindow(object):
             self.XML_TextBox.setTextCursor(cursor)
 
 
-        self.StatusBar_Message("red",str(len(indices)) + " Errors Found")
+        self.StatusBar_Message("red",str(len(indices)) + " Error(s) Found")
 
         return
 
