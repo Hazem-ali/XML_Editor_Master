@@ -1,3 +1,5 @@
+from xml_private_functions import Bring_Data
+
 def Check(File_Content):
     fCheck_List = []
     fCheck_IndexList = []
@@ -106,7 +108,8 @@ def Check(File_Content):
     #print(indexerr)
     return indexerr
     
-            
+
+print(Check(Bring_Data('ss.txt')))
         
 
 
