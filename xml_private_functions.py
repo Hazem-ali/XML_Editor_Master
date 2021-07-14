@@ -4,16 +4,20 @@ def getRepeatedArray(x) -> list:
     rep = []
     lastItem = None
     array = []
-    if(not x):
-        x
+    
     for item in x:
-        if(not lastItem is None and item.tag != lastItem.tag):
+        if( str(item.tag).find('"') == -1 ):
+            currentItemTag = str(item.tag)
+        else:
+            currentItemTag = str(item.tag).split(' ',1)[0]+'>'
+
+        if(not lastItem is None and currentItemTag != lastItem):
             rep.append(array)
             array = []
             array.append(item)
         else:
             array.append(item)
-        lastItem = item
+        lastItem = currentItemTag
 
     if array:
         rep.append(array)
@@ -42,30 +46,30 @@ def stringToTokens(string) -> list:
 def extractTagAttr(tag) -> list:
     # <name id=" h123" ref="12301 02" >
 
+    if(str(tag).find('"') == -1):
+        return []
     correctedTag = str(tag).split(' ', 1)[1]
-    correctedTag = correctedTag.replace('>','')
+    correctedTag = correctedTag.replace('>', '')
 
-    attrs=[]
-    counter=0
-    formedAttr=""
+    attrs = []
+    counter = 0
+    formedAttr = ""
     for char in correctedTag:
-        if(char=="\"" or char=="'"):
-            counter+=1
-        if(counter>0 or char!=' '): formedAttr+=char
-        if(counter==2):
+        if(char == "\"" or char == "'"):
+            counter += 1
+        if(counter > 0 or char != ' '):
+            formedAttr += char
+        if(counter == 2):
             attrs.append(formedAttr)
-            formedAttr=""
-            counter=0
-    nodes=[]
-    print(attrs)
+            formedAttr = ""
+            counter = 0
+    nodes = []
     for item in attrs:
-        item = str(item).replace('="','?hossam?')
-        item = str(item).replace("='",'?hossam?')
-        item = str(item).replace('"','')
+        item = str(item).replace('="', '?hossam?')
+        item = str(item).replace("='", '?hossam?')
+        item = str(item).replace('"', '')
         itemData = item.split('?hossam?')
-        print(itemData)
-        node = {"tag":itemData[0], "data":itemData[1]}
+        node = {"tag": itemData[0], "data": itemData[1]}
         nodes.append(node)
 
     return nodes
-        

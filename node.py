@@ -2,10 +2,11 @@ from xml_private_functions import getRepeatedArray
 
 ####### Node Class Used in XML Class #######
 class Node:
-    def __init__(self, tag=None, data=None, parent=None, closingTag=None) -> None:
+    def __init__(self, tag=None, data=None, jsonData=None, parent=None, closingTag=None) -> None:
         self.tag = tag
         self.closingTag = closingTag
         self.data = data
+        self.jsonData = jsonData
         self.children = []
         self.attrChildren= []
         self.parent = parent
@@ -66,33 +67,33 @@ class Node:
         if(not isArray):
             #### Normal Opening ####
             jsonText += taps+"\"" + correctedTag + "\":"  # " adding ("") to all"
-            if(not self.data):
+            if(not self.jsonData):
                 jsonText += '{'  # add tap { for parents only
-            # add data or another opening tag #
-            if(self.data):
-                jsonText += "\"" + self.data + "\","
-            else:
                 taps += '\t'
                 jsonText += '\n'
+            # add data or another opening tag #
+            if(self.jsonData):
+                jsonText += "\"" + self.jsonData + "\","
 
         else:
             #### Array Opening ####
-            if(not self.data):
+            if(not self.jsonData):
                 if(childIndex==0): jsonText += taps+"\"" + correctedTag + "\":[\n"+taps+" {"  # " adding ("") to all"
                 else: jsonText+='\n'+taps+' {'  # " adding ("") to all"
 
                 taps += '\t'
                 jsonText += '\n'
             else:
-                jsonText+='\n'+taps+' '+self.data+','
+                jsonText+='\n'+taps+' '+self.jsonData+','
                 taps += '\t'
                  
         #### Children ####
         # Sort Every Children Array
-        self.children = sorted(self.children,key=lambda child:child.tag )
-        self.children = getRepeatedArray(self.children)
+        allchildrenNodes = self.children + self.attrChildren
+        allchildrenNodes = sorted(allchildrenNodes, key=lambda child:child.tag )
+        allchildrenNodes = getRepeatedArray(allchildrenNodes)
         # Add the children recurrsively #
-        for node in self.children:
+        for node in allchildrenNodes:
             if(len(node) == 1):
                 jsonText += node[0].toJson(taps=taps)
                 jsonText += '\n'  # new line after each child
@@ -104,7 +105,7 @@ class Node:
 
         #### Closing ####
         taps = taps[:-1]  # decrease number of taps after finish this children
-        if(not self.data):
+        if(not self.jsonData):
             jsonText += taps  # put taps before closing tag
             if(not isArray) : jsonText += "}"  # put the closing tag
             else : jsonText += " },"  # put the closing tag
@@ -120,4 +121,7 @@ class Node:
     def clearVisited(self):
         self.visited = False
         for item in self.children:
+            item.clearVisited()
+
+        for item in self.attrChildren:
             item.clearVisited()
