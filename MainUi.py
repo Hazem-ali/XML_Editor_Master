@@ -279,9 +279,9 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "JSON Data..."))
         self.Check_Button.setText(_translate("MainWindow", "Check Errors"))
         self.Solve_Button.setText(_translate("MainWindow", "Solve Errors"))
-        self.Minify_Button.setText(_translate("MainWindow", "Minify XML"))
+        self.Minify_Button.setText(_translate("MainWindow", "Minify"))
         self.Convert_Button.setText(
-            _translate("MainWindow", "Convert to JSON"))
+            _translate("MainWindow", "To JSON"))
         self.Compress_Button.setText(_translate("MainWindow", "Compress"))
         self.SaveAs_Button.setText(_translate("MainWindow", "Save As"))
         self.Title.setText(_translate("MainWindow", "XML Editor"))
