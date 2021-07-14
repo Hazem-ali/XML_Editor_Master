@@ -34,8 +34,8 @@ def Bring_Data(filename):
 def stringToTokens(string) -> list:
     xmlStr = str(string)
     
-    xmlStr = xmlStr.split()
-    xmlStr = ' '.join(xmlStr)
+    xmlStr = minify(xmlStr)
+    
     # remove ?>
     while(1):
         hh = re.search("<\?.*\?>|<!--.*-->",xmlStr)
@@ -84,3 +84,9 @@ def extractTagAttr(tag) -> list:
         nodes.append(node)
 
     return nodes
+
+def minify(x):
+    xmlStr=x
+    xmlStr = xmlStr.split()
+    xmlStr = ' '.join(xmlStr)
+    return xmlStr
