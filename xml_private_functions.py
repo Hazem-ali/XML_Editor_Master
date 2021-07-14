@@ -33,10 +33,11 @@ def Bring_Data(filename):
         return f.read()
 
 
-def stringToTokens(string) -> list:
+def stringToTokens(string,minify1=True) -> list:
     xmlStr = str(string)
 
-    xmlStr = minify(xmlStr)
+    if(minify1): 
+        xmlStr = minify(xmlStr)
 
     # remove ?>
     while(1):
@@ -51,7 +52,7 @@ def stringToTokens(string) -> list:
     xmlStr = xmlStr.replace('>', '>?hossam?')
     xmlStr = xmlStr.split('?hossam?')
     for item in xmlStr:
-        if(item == ' ' or item == ''):
+        if(item == ' ' or item == '' or item == '\n'):
             xmlStr.remove(item)
     return xmlStr
 
@@ -97,9 +98,9 @@ def minify(x):
 # get tokens with index {"token","index"} #
 
 
-def getTokensPlus(string1):
-    string = minify(string1)
-    tokens = stringToTokens(string)
+def getTokensPlus(string):
+    #string = minify(string1)
+    tokens = stringToTokens(string,minify1=False)
     tokensPlus = []
     for token in tokens:
         index = str(string).find(str(token))
