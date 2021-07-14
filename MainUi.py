@@ -179,6 +179,7 @@ class Ui_MainWindow(object):
         cur_format = QtGui.QTextCharFormat()
         color=QtGui.QColor("#147DBD")
         cur_format.setBackground(color)
+        print("Indices", indices)
         # indices = [(200,400),(700,1200),(2000,2500)]
         for start, end in indices:
             
@@ -294,7 +295,7 @@ class Ui_MainWindow(object):
         # Load Data
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            MainWindow, "Open XML file", "", "XML Files (*.xml)", options=options)
+            MainWindow, "Open XML file", "", "XML Files (*.xml);;Text Files (*.txt)", options=options)
         if fileName:
             print("Opened File:",fileName)
             self.filename = fileName

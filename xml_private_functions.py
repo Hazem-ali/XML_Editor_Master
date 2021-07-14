@@ -120,14 +120,16 @@ def checkErrors(string):
         if(token[0] == '<' and token[-1] != '>'):
             errors.append(
                 {"position": (beginIndex, (beginIndex + len(token))),
-                 "type": "syntax"}
-            )
+                 "type": "syntax",
+                 "tag" : token
+                })
 
         if(token[0] != '<' and token[-1] == '>'):
             errors.append(
                 {"position": (beginIndex, (beginIndex + len(token))),
-                 "type": "syntax"}
-            )
+                 "type": "syntax",
+                 "tag" : token
+                 })
 
     ####### Ordering Errors #######
     stack = []
@@ -136,8 +138,9 @@ def checkErrors(string):
         item = tokensPlus[i]
 
         # Opening tag #
-        if(item['token'][1] != '/' and item['token'][0] == '<' and item['token'][-2] != '/'):
+        if(item['token'][1] != '/' and (item['token'][0] == '<' or item['token'][-1] == '>') and item['token'][-2] != '/'):
             item['tagType'] = 'opening'
+            print(item['token'])
             stack.append(item)
 
         # Closing tag #
@@ -148,21 +151,33 @@ def checkErrors(string):
             if(len(stack)==0):
                 beginIndex = item['beginIndex']
                 token = item['token']
+
+                # if in error #
+                if isInArray(errors,item):
+                    i+=1
+                    continue
+
                 errors.append(
                     {"position": (beginIndex, (beginIndex + len(token))),
-                        "type": "missOrder"}
-                )
+                        "type": "missOrder",
+                        "tag": token
+                    })
+
                 i+=1
                 continue
 
-            # if not empty
+            # if not stack empty
             popedItem = stack.pop()
+            poped1 = popedItem
 
             # poped is data #
             if(popedItem['token'][0] != '<'):
                 popedItem = stack.pop()  # pop opening tag
+                poped2 = popedItem
 
             test1 = str(popedItem['token']).split(' ', 1)[0]
+            if((not test1) or test1==' '):
+                test1 = str(popedItem['token'])
             test1 = test1.replace('<', '')
             test1 = test1.replace('>', '')
 
@@ -170,15 +185,36 @@ def checkErrors(string):
             test2 = test2.replace('</', '')
             test2 = test2.replace('>', '')
 
-            print("tests", test1, test2)
+            # if in error #
+            if isInArray(errors,item):
+                i+=1
+                continue
+            
+            print("testes",test1,test2)
             if(test1 != test2):
-                beginIndex = popedItem['beginIndex']
-                token = popedItem['token']
-                errors.append(
-                    {"position": (beginIndex, (beginIndex + len(token))),
-                        "type": "missOrder"}
-                )
-                i -= 1
+                if isInArray(stack,item,'stack'):
+                    beginIndex = popedItem['beginIndex']
+                    token = popedItem['token']
+                    i -= 1
+                    errors.append(
+                        {"position": (beginIndex, (beginIndex + len(token))),
+                            "type": "missOrder",
+                            "tag":token
+                        })
+                else:
+                    if(poped2): stack.append(poped2)
+                    stack.append(poped1)
+
+                    beginIndex = item['beginIndex']
+                    token = item['token']
+                    errors.append(
+                        {"position": (beginIndex, (beginIndex + len(token))),
+                        "type": "missOrder",
+                        "tag": token
+                    })
+                    i+=1
+                    continue
+                    
 
         # Self Closing tag #
         elif(item['token'][-2] == '/'):
@@ -190,16 +226,65 @@ def checkErrors(string):
             stack.append(item)
         i += 1  # increament iterator
 
+
     # left items in stack #
     for item in stack:
         beginIndex = item['beginIndex']
         token = item['token']
+
+        # if in error #
+        if isInArray(errors,item):
+            i+=1
+            continue
+
         errors.append(
             {"position": (beginIndex, (beginIndex + len(token))),
-                "type": "missOrder"}
+                "type": "missOrder",
+                "tag":token
+            }
         )
 
     return errors
+
+
+# check existance in error array #
+def isInArray(array,item,type='error') -> bool:
+
+    test1 = str(item['token']).split(' ', 1)[0]
+    if((not test1) or test1==' '):
+        test1 = str(item['token'])
+    test1 = test1.replace('<', '')
+    test1 = test1.replace('/', '')
+    test1 = test1.replace('>', '')
+
+    # if in error #
+    if(type=='error'):
+        for error in array:
+            test2 = str(error['tag']).split(' ', 1)[0]
+            if((not test2) or test2==' '):
+                test2 = str(error['tag'])
+            test2 = test2.replace('<', '')
+            test2 = test2.replace('/', '')
+            test2 = test2.replace('>', '')
+            
+            if( test1 == test2 ):
+                return True
+        return False
+    else:
+        for error in array:
+            test2 = str(error['token']).split(' ', 1)[0]
+            if((not test2) or test2==' '):
+                test2 = str(error['token'])
+            test2 = test2.replace('<', '')
+            test2 = test2.replace('/', '')
+            test2 = test2.replace('>', '')
+
+            if( test1 == test2 ):
+                return True
+        return False
+
+
+
 
 
 # ss = Bring_Data('ss.txt')
