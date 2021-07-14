@@ -97,11 +97,12 @@ def minify(x):
 # get tokens with index {"token","index"} #
 
 
-def getTokensPlus(string):
+def getTokensPlus(string1):
+    string = minify(string1)
     tokens = stringToTokens(string)
     tokensPlus = []
     for token in tokens:
-        index = str(string).find(str(token).replace(' ', ''))
+        index = str(string).find(str(token))
         tokensPlus.append({"token": token, "beginIndex": index})
 
     return tokensPlus
@@ -140,7 +141,7 @@ def checkErrors(string):
         # Opening tag #
         if(item['token'][1] != '/' and (item['token'][0] == '<' or item['token'][-1] == '>') and item['token'][-2] != '/'):
             item['tagType'] = 'opening'
-            print(item['token'])
+            #print(item['token'])
             stack.append(item)
 
         # Closing tag #
@@ -190,7 +191,7 @@ def checkErrors(string):
                 i+=1
                 continue
             
-            print("testes",test1,test2)
+            #print("testes",test1,test2)
             if(test1 != test2):
                 if isInArray(stack,item,'stack'):
                     beginIndex = popedItem['beginIndex']
