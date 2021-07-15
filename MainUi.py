@@ -43,7 +43,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.XML_TextBox.setFont(font)
-        # self.XML_TextBox.setReadOnly(True)
+        self.XML_TextBox.setReadOnly(False)
         self.XML_TextBox.setObjectName("XML_TextBox")
         self.XML_TextBox.setTabStopDistance(10)
         self.Open_Button = QtWidgets.QPushButton(
@@ -172,11 +172,16 @@ class Ui_MainWindow(object):
     def Check_XML(self):
         # Check XML Correctness
 
-        
-        
+        # Minifying to check errors
+        minified_xml = xml_fn.minify(self.XML_TextBox.toPlainText())
         indices = []
         # errors = xml_fn.checkErrors(self.retrieved_xml)
-        errors = xml_fn.checkErrors(self.XML_TextBox.toPlainText())
+        errors = xml_fn.checkErrors(minified_xml)
+        
+        # Minify textbox if errors found
+        if errors:
+            self.XML_TextBox.setPlainText(minified_xml)  
+            
         for item in errors:
             indices.append(item["position"])
 
@@ -196,7 +201,7 @@ class Ui_MainWindow(object):
 
         self.StatusBar_Message("red",str(len(indices)) + " Error(s) Found")
 
-        return
+        return len(indices) 
 
     def Solve_XML(self):
         # Solving XML Errors
@@ -224,11 +229,15 @@ class Ui_MainWindow(object):
         # Prettify XML by adding spaces and lines
 
         self.Clear_Highlights()
+        
+        # Check That XML has no errors
+        if self.Check_XML() != 0:
+            self.StatusBar_Message("red","Please Fix Errors First, Then Prettify")
+            return    
 
         # Check That we've xml file
         if not self.XML_TextBox.toPlainText():
             self.StatusBar_Message("red","Please add an XML file first")
-
             return
 
         xml_data = xml_convert.Xml()
@@ -243,9 +252,18 @@ class Ui_MainWindow(object):
     def toJSON(self):
         # Convert correct XML into JSON
 
+        self.Clear_Highlights()
+        
         # Check That we've xml file
         if not self.XML_TextBox.toPlainText():
+            self.Json_TextBox.setPlainText("")
             self.StatusBar_Message("red","Please add an XML file first")
+            return
+        
+        # Check That XML has no errors
+        if self.Check_XML() != 0:
+            self.Json_TextBox.setPlainText("")
+            self.StatusBar_Message("red","Please Fix Errors First, Then Convert to JSON")
             return
 
         xml_data = xml_convert.Xml()
@@ -303,6 +321,7 @@ class Ui_MainWindow(object):
         if fileName:
             print("Opened File:",fileName)
             self.filename = fileName
+            self.Clear_Highlights()
             self.Read_and_Fill(fileName, self.XML_TextBox)
             self.StatusBar_Message("green", "File Opened")
         return
