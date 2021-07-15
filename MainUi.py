@@ -176,6 +176,7 @@ class Ui_MainWindow(object):
         # Check XML Correctness
 
         # Minifying to check errors
+        self.retrieved_xml=self.XML_TextBox.toPlainText()
         minified_xml = xml_fn.minify(self.XML_TextBox.toPlainText())
         indices = []
         # errors = xml_fn.checkErrors(self.retrieved_xml)
@@ -183,6 +184,7 @@ class Ui_MainWindow(object):
 
         # Minify textbox if errors found
         if errors:
+            self.retrieved_xml = self.XML_TextBox.toPlainText()
             self.XML_TextBox.setPlainText(minified_xml)
 
         for item in errors:
@@ -216,10 +218,11 @@ class Ui_MainWindow(object):
         
         # If we reached here, we have errors    
         import solve
-        solvedText, remain_errors = solve.solve(errors, tokenPlus)
+        solvedText = solve.solveAll(errors, self.retrieved_xml)
         
         self.XML_TextBox.setPlainText(xml_fn.minify(solvedText))
-        print(remain_errors)
+        self.StatusBar_Message("green","Errors Solved Successfully")
+        # print(remain_errors)
         return
 
     def Minify_XML(self):
