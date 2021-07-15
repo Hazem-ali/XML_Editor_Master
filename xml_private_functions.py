@@ -98,9 +98,9 @@ def minify(x):
 # get tokens with index {"token","index"} #
 
 
-def getTokensPlus(string):
-    #string = minify(string1)
-    tokens = stringToTokens(string,minify1=False)
+def getTokensPlus(string1):
+    string = minify(string1)
+    tokens = stringToTokens(string)
     tokensPlus = []
     for token in tokens:
         index = str(string).find(str(token))
@@ -289,5 +289,5 @@ def isInArray(array,item,type='error') -> bool:
 
 
 
-ss = Bring_Data('test1.txt')
+ss = Bring_Data('test.txt')
 print(checkErrors(ss))
