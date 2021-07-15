@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
         self.retrieved_xml = ''
         self.correct_xml = ''
         self.converted_json = ''
-        self.color = 'light'
+        self.color = 'Light'
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -127,12 +127,12 @@ class Ui_MainWindow(object):
         self.actionLight.setCheckable(False)
         self.actionLight.setChecked(False)
         self.actionLight.setObjectName("actionLight")
-        self.actionLight.triggered.connect(lambda: self.GUI_Color("light"))
+        self.actionLight.triggered.connect(lambda: self.GUI_Color("Light"))
         self.actionDark = QtWidgets.QAction(MainWindow)
         self.actionDark.setCheckable(False)
         self.actionDark.setChecked(False)
         self.actionDark.setObjectName("actionDark")
-        self.actionDark.triggered.connect(lambda: self.GUI_Color("dark"))
+        self.actionDark.triggered.connect(lambda: self.GUI_Color("Dark"))
         self.actionCompress_Current_XML = QtWidgets.QAction(MainWindow)
         self.actionCompress_Current_XML.setObjectName("actionCompress_Current_XML")
         self.actionCompress_Current_XML.triggered.connect(lambda: self.Compress_XML())
@@ -158,6 +158,7 @@ class Ui_MainWindow(object):
     def GUI_Color(self,color):
         self.color = color
         Change_Theme(color)
+        self.StatusBar_Message("blue", color +" Mode Applied")
         return
 
     def Clear_Highlights(self):
@@ -208,13 +209,13 @@ class Ui_MainWindow(object):
         # Remove XML spaces and lines
 
         # Check That we've xml file
-        if not self.retrieved_xml:
+        if not self.XML_TextBox.toPlainText():
             self.StatusBar_Message("red","Please add an XML file first")
             return
 
         self.Clear_Highlights()
 
-        self.retrieved_xml = xml_fn.minify(self.retrieved_xml)
+        self.retrieved_xml = xml_fn.minify(self.XML_TextBox.toPlainText())
         self.XML_TextBox.setPlainText(self.retrieved_xml)
         self.StatusBar_Message("green","XML Minified Successfully")
         return
@@ -225,15 +226,15 @@ class Ui_MainWindow(object):
         self.Clear_Highlights()
 
         # Check That we've xml file
-        if not self.retrieved_xml:
+        if not self.XML_TextBox.toPlainText():
             self.StatusBar_Message("red","Please add an XML file first")
 
             return
 
         xml_data = xml_convert.Xml()
-        xml_data.insert(self.retrieved_xml)
-        self.retrieved_xml = xml_data.toXml()
-        self.XML_TextBox.setPlainText(self.retrieved_xml)
+        xml_data.insert(self.XML_TextBox.toPlainText())
+        prettified_xml = xml_data.toXml()
+        self.XML_TextBox.setPlainText(prettified_xml)
         self.StatusBar_Message("green","XML Prettified Successfully")
 
 
@@ -243,12 +244,12 @@ class Ui_MainWindow(object):
         # Convert correct XML into JSON
 
         # Check That we've xml file
-        if not self.retrieved_xml:
+        if not self.XML_TextBox.toPlainText():
             self.StatusBar_Message("red","Please add an XML file first")
             return
 
         xml_data = xml_convert.Xml()
-        xml_data.insert(self.retrieved_xml)
+        xml_data.insert(self.XML_TextBox.toPlainText())
         self.converted_json = xml_data.toJson()
         self.Json_TextBox.setPlainText(self.converted_json)
         self.StatusBar_Message("green", "Converted to JSON Successfully")
@@ -259,7 +260,7 @@ class Ui_MainWindow(object):
         # Compress XML Data
 
         # Check if XML was given before compression
-        if not self.retrieved_xml:
+        if not self.XML_TextBox.toPlainText():
             self.StatusBar_Message("red", "Please add an XML file first")
             return
 
@@ -270,7 +271,7 @@ class Ui_MainWindow(object):
             MainWindow, 'Save Compressed File As', filter="Compressed File (*.lzw)")
         # If a name is written
         if name:
-            compress.LZW_Compress(self.retrieved_xml, name)
+            compress.LZW_Compress(self.XML_TextBox.toPlainText(), name)
             self.StatusBar_Message("green", "Compression Done Successfully")
 
         return
@@ -316,7 +317,7 @@ class Ui_MainWindow(object):
 
     def SaveFile(self):
         # Check if XML was given before saving
-        if not self.retrieved_xml:
+        if not self.XML_TextBox.toPlainText():
             self.StatusBar_Message("red", "Please add an XML file first")
 
             return
@@ -333,15 +334,15 @@ class Ui_MainWindow(object):
         if name:
             with open(name, 'w') as f:
                 if extension.startswith("XML"):
-                    f.write(self.current_xml)
+                    f.write(self.XML_TextBox.toPlainText())
                 elif extension.startswith("JSON"):
-                    f.write(self.current_json)
+                    f.write(self.converted_json)
             self.StatusBar_Message("green", "Saved Successfully")
 
         return
 
     def StatusBar_Message(self, color, message):
-        if self.color == 'light':
+        if self.color == 'Light':
             self.statusBar.setStyleSheet("color : " + color)
         else:
             self.statusBar.setStyleSheet("color : white")
@@ -422,9 +423,9 @@ def Change_Theme(color):
     if app is None:
         raise RuntimeError("No Qt Application found.")
 
-    if color == "dark":
+    if color == "Dark":
         app.setStyleSheet(theme.load_stylesheet(palette=theme.DarkPalette))
-    elif color == "light":
+    elif color == "Light":
         app.setStyleSheet(theme.load_stylesheet(palette=theme.LightPalette))
 
 
