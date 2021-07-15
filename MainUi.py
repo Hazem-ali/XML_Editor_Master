@@ -134,11 +134,14 @@ class Ui_MainWindow(object):
         self.actionDark.setObjectName("actionDark")
         self.actionDark.triggered.connect(lambda: self.GUI_Color("Dark"))
         self.actionCompress_Current_XML = QtWidgets.QAction(MainWindow)
-        self.actionCompress_Current_XML.setObjectName("actionCompress_Current_XML")
-        self.actionCompress_Current_XML.triggered.connect(lambda: self.Compress_XML())
+        self.actionCompress_Current_XML.setObjectName(
+            "actionCompress_Current_XML")
+        self.actionCompress_Current_XML.triggered.connect(
+            lambda: self.Compress_XML())
         self.actionDecompress_a_File = QtWidgets.QAction(MainWindow)
         self.actionDecompress_a_File.setObjectName("actionDecompress_a_File")
-        self.actionDecompress_a_File.triggered.connect(lambda: self.Decompress_XML())
+        self.actionDecompress_a_File.triggered.connect(
+            lambda: self.Decompress_XML())
         self.menuOpen.addAction(self.actionOpen)
         self.menuOpen.addSeparator()
         self.menuOpen.addAction(self.actionSave_As)
@@ -155,10 +158,10 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def GUI_Color(self,color):
+    def GUI_Color(self, color):
         self.color = color
         Change_Theme(color)
-        self.StatusBar_Message("blue", color +" Mode Applied")
+        self.StatusBar_Message("blue", color + " Mode Applied")
         return
 
     def Clear_Highlights(self):
@@ -176,17 +179,17 @@ class Ui_MainWindow(object):
         minified_xml = xml_fn.minify(self.XML_TextBox.toPlainText())
         indices = []
         # errors = xml_fn.checkErrors(self.retrieved_xml)
-        errors = xml_fn.checkErrors(minified_xml)
-        
+        errors, _ = xml_fn.checkErrors(minified_xml)
+
         # Minify textbox if errors found
         if errors:
-            self.XML_TextBox.setPlainText(minified_xml)  
-            
+            self.XML_TextBox.setPlainText(minified_xml)
+
         for item in errors:
             indices.append(item["position"])
 
         cur_format = QtGui.QTextCharFormat()
-        color=QtGui.QColor("#6495ED")
+        color = QtGui.QColor("#6495ED")
         cur_format.setBackground(color)
         print("Indices", indices)
         # indices = [(200,400),(700,1200),(2000,2500)]
@@ -198,16 +201,25 @@ class Ui_MainWindow(object):
             cursor.setCharFormat(cur_format)
             self.XML_TextBox.setTextCursor(cursor)
 
+        self.StatusBar_Message("red", str(len(indices)) + " Error(s) Found")
 
-        self.StatusBar_Message("red",str(len(indices)) + " Error(s) Found")
-
-        return len(indices) 
+        return len(indices)
 
     def Solve_XML(self):
         # Solving XML Errors
 
         self.Clear_Highlights()
-
+        errors, tokenPlus = xml_fn.checkErrors(self.XML_TextBox.toPlainText())
+        if not errors:
+            self.StatusBar_Message("green","No errors to solve")
+            return
+        
+        # If we reached here, we have errors    
+        import solve
+        solvedText, remain_errors = solve.solve(errors, tokenPlus)
+        
+        self.XML_TextBox.setPlainText(xml_fn.minify(solvedText))
+        print(remain_errors)
         return
 
     def Minify_XML(self):
@@ -215,37 +227,37 @@ class Ui_MainWindow(object):
 
         # Check That we've xml file
         if not self.XML_TextBox.toPlainText():
-            self.StatusBar_Message("red","Please add an XML file first")
+            self.StatusBar_Message("red", "Please add an XML file first")
             return
 
         self.Clear_Highlights()
 
         self.retrieved_xml = xml_fn.minify(self.XML_TextBox.toPlainText())
         self.XML_TextBox.setPlainText(self.retrieved_xml)
-        self.StatusBar_Message("green","XML Minified Successfully")
+        self.StatusBar_Message("green", "XML Minified Successfully")
         return
 
     def Prettify_XML(self):
         # Prettify XML by adding spaces and lines
 
         self.Clear_Highlights()
-        
+
         # Check That XML has no errors
         if self.Check_XML() != 0:
-            self.StatusBar_Message("red","Please Fix Errors First, Then Prettify")
-            return    
+            self.StatusBar_Message(
+                "red", "Please Fix Errors First, Then Prettify")
+            return
 
         # Check That we've xml file
         if not self.XML_TextBox.toPlainText():
-            self.StatusBar_Message("red","Please add an XML file first")
+            self.StatusBar_Message("red", "Please add an XML file first")
             return
 
         xml_data = xml_convert.Xml()
         xml_data.insert(self.XML_TextBox.toPlainText())
         prettified_xml = xml_data.toXml()
         self.XML_TextBox.setPlainText(prettified_xml)
-        self.StatusBar_Message("green","XML Prettified Successfully")
-
+        self.StatusBar_Message("green", "XML Prettified Successfully")
 
         return
 
@@ -253,17 +265,18 @@ class Ui_MainWindow(object):
         # Convert correct XML into JSON
 
         self.Clear_Highlights()
-        
+
         # Check That we've xml file
         if not self.XML_TextBox.toPlainText():
             self.Json_TextBox.setPlainText("")
-            self.StatusBar_Message("red","Please add an XML file first")
+            self.StatusBar_Message("red", "Please add an XML file first")
             return
-        
+
         # Check That XML has no errors
         if self.Check_XML() != 0:
             self.Json_TextBox.setPlainText("")
-            self.StatusBar_Message("red","Please Fix Errors First, Then Convert to JSON")
+            self.StatusBar_Message(
+                "red", "Please Fix Errors First, Then Convert to JSON")
             return
 
         xml_data = xml_convert.Xml()
@@ -302,16 +315,14 @@ class Ui_MainWindow(object):
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
             MainWindow, "Open Compressed file", "", "LZW Files (*.lzw)", options=options)
         if fileName:
-           import compress
-           self.retrieved_xml, output_name = compress.LZW_Decompress(fileName)
-           self.Fill_From_String(self.retrieved_xml, self.XML_TextBox)
-           output_name = output_name.split('/')[-1]
-           self.StatusBar_Message("green", "Done, Showing Decompressed file, and Saved As " + output_name)
-
+            import compress
+            self.retrieved_xml, output_name = compress.LZW_Decompress(fileName)
+            self.Fill_From_String(self.retrieved_xml, self.XML_TextBox)
+            output_name = output_name.split('/')[-1]
+            self.StatusBar_Message(
+                "green", "Done, Showing Decompressed file, and Saved As " + output_name)
 
         return
-
-
 
     def OpenFile(self):
         # Load Data
@@ -319,7 +330,7 @@ class Ui_MainWindow(object):
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
             MainWindow, "Open XML file", "", "XML Files (*.xml);;Text Files (*.txt)", options=options)
         if fileName:
-            print("Opened File:",fileName)
+            print("Opened File:", fileName)
             self.filename = fileName
             self.Clear_Highlights()
             self.Read_and_Fill(fileName, self.XML_TextBox)
@@ -343,7 +354,6 @@ class Ui_MainWindow(object):
         # elif not self.correct_xml:
         #     self.statusBar.showMessage("No changes to save....!")
         #     return
-
 
         # Save Data
         name, extension = QtWidgets.QFileDialog.getSaveFileName(
@@ -396,7 +406,8 @@ class Ui_MainWindow(object):
 
         text += data[i:]  # Adding rest of data
         # Put it in HTML format in order to color it
-        final_result = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n""<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n""p, li { white-space: pre-wrap; }\n""</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n""""<xmp><textarea style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"""+str(text)+"""</textarea></xmp></body></html>"""
+        final_result = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n""<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n""p, li { white-space: pre-wrap; }\n""</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n""""<xmp><textarea style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"""+str(
+            text)+"""</textarea></xmp></body></html>"""
         return final_result
 
     def retranslateUi(self, MainWindow):
@@ -423,15 +434,17 @@ class Ui_MainWindow(object):
         self.Prettify_Button.setText(_translate("MainWindow", "Prettify"))
         self.menuOpen.setTitle(_translate("MainWindow", "File"))
         self.menuTheme.setTitle(_translate("MainWindow", "Theme"))
-        self.menuCompression.setTitle(_translate("MainWindow", "Compression Options"))
+        self.menuCompression.setTitle(_translate(
+            "MainWindow", "Compression Options"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionSave_As.setText(_translate("MainWindow", "Save As"))
         self.actionClose.setText(_translate("MainWindow", "Close"))
         self.actionLight.setText(_translate("MainWindow", "Light"))
         self.actionDark.setText(_translate("MainWindow", "Dark"))
-        self.actionCompress_Current_XML.setText(_translate("MainWindow", "Compress Current XML..."))
-        self.actionDecompress_a_File.setText(_translate("MainWindow", "Decompress a File..."))
-
+        self.actionCompress_Current_XML.setText(
+            _translate("MainWindow", "Compress Current XML..."))
+        self.actionDecompress_a_File.setText(
+            _translate("MainWindow", "Decompress a File..."))
 
 
 def Change_Theme(color):

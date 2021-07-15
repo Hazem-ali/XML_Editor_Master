@@ -1,8 +1,6 @@
 import re
 
 ########## FUNCTIONS ###########
-
-
 def getRepeatedArray(x) -> list:
     rep = []
     lastItem = None
@@ -187,10 +185,7 @@ def checkErrors(string):
             test2 = test2.replace('</', '')
             test2 = test2.replace('>', '')
 
-            # if in error #
-            if isInArray(errors,item):
-                i+=1
-                continue
+            
             
             #print("testes",test1,test2)
             if(test1 != test2):
@@ -198,14 +193,30 @@ def checkErrors(string):
                     beginIndex = popedItem['beginIndex']
                     token = popedItem['token']
                     i -= 1
+
+                    if isInArray(errors,popedItem):
+                        i+=1
+                        continue
+
                     errors.append(
                         {"position": (beginIndex, (beginIndex + len(token))),
                             "type": "missOrder",
                             "tag":token
                         })
+
                 else:
-                    if(poped2): stack.append(poped2)
-                    stack.append(poped1)
+                    index = None
+                    for ele in enumerate(tokensPlus):
+                        if(item['token']==ele[1]['token']):
+                            index = ele[0]-1
+                    if(tokensPlus[index]['tagType']=='data'):
+                        if(poped2): stack.append(poped2)
+                        stack.append(poped1)
+
+                    # if in error #
+                    if isInArray(errors,item):
+                        i+=1
+                        continue
 
                     beginIndex = item['beginIndex']
                     token = item['token']
@@ -246,7 +257,7 @@ def checkErrors(string):
             }
         )
 
-    return errors
+    return (errors,tokensPlus)
 
 
 # check existance in error array #
@@ -289,5 +300,7 @@ def isInArray(array,item,type='error') -> bool:
 
 
 
-# ss = Bring_Data('test.txt')
-# print(checkErrors(ss))
+# ss = Bring_Data('ss.txt')
+# # errorsWithTokens = checkErrors(ss)
+# print(checkErrors(ss)[0])
+# #print( solve(errorsWithTokens[0],errorsWithTokens[1]) )
