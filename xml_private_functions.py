@@ -1,8 +1,6 @@
 import re
 
 ########## FUNCTIONS ###########
-
-
 def getRepeatedArray(x) -> list:
     rep = []
     lastItem = None
@@ -207,8 +205,13 @@ def checkErrors(string):
                         })
 
                 else:
-                    if(poped2): stack.append(poped2)
-                    stack.append(poped1)
+                    index = None
+                    for ele in enumerate(tokensPlus):
+                        if(item['token']==ele[1]['token']):
+                            index = ele[0]-1
+                    if(tokensPlus[index]['tagType']=='data'):
+                        if(poped2): stack.append(poped2)
+                        stack.append(poped1)
 
                     # if in error #
                     if isInArray(errors,item):
@@ -297,5 +300,7 @@ def isInArray(array,item,type='error') -> bool:
 
 
 
-ss = Bring_Data('ss.txt')
-print(checkErrors(ss)[0])
+# ss = Bring_Data('ss.txt')
+# # errorsWithTokens = checkErrors(ss)
+# print(checkErrors(ss)[0])
+# #print( solve(errorsWithTokens[0],errorsWithTokens[1]) )
