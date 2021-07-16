@@ -299,7 +299,7 @@ def isInArray(array,item,type='error') -> bool:
 
 
 
-ss = Bring_Data('ss.txt')
-# errorsWithTokens = checkErrors(ss)
-print(checkErrors(ss)[0])
+# ss = Bring_Data('ss.txt')
+# # errorsWithTokens = checkErrors(ss)
+# print(checkErrors(ss)[0])
 #print( solve(errorsWithTokens[0],errorsWithTokens[1]) )

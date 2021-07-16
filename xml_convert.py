@@ -89,10 +89,10 @@ class Xml:
 
 
 ########## TESTING ###########
-input = Bring_Data('data-sample.xml')
+# input = Bring_Data('data-sample.xml')
 
-rr = Xml()
-rr.insert(input)
+# rr = Xml()
+# rr.insert(input)
 # print(rr.toXml())
 # print('_______________________________________________')
 # print(rr.toJson())
